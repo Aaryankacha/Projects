@@ -41,7 +41,6 @@ class UserListPage extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 👋 Greeting with dynamic user name
           FutureBuilder<String>(
             future: getCurrentUserName(),
             builder: (context, snapshot) {
@@ -62,7 +61,6 @@ class UserListPage extends StatelessWidget {
             },
           ),
 
-          // 🔁 Horizontal user avatar list
           SizedBox(
             height: 100,
             child: StreamBuilder<QuerySnapshot>(
@@ -130,7 +128,6 @@ class UserListPage extends StatelessWidget {
 
           const Divider(),
 
-          // 📜 Full user list with recent chat preview
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance

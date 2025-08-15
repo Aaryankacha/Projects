@@ -85,7 +85,6 @@ class ManageEmployeesPage extends StatelessWidget {
                                 .collection('users')
                                 .doc(user.id);
 
-                            // Delete subcollection tasks
                             final tasksSnapshot = await userDocRef
                                 .collection('tasks')
                                 .get();
@@ -100,7 +99,6 @@ class ManageEmployeesPage extends StatelessWidget {
                               await task.reference.delete();
                             }
 
-                            // Delete user document
                             await userDocRef.delete();
 
                             ScaffoldMessenger.of(context).showSnackBar(

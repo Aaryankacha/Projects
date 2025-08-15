@@ -1,4 +1,3 @@
-// lib/admin/task_detail_page.dart
 import 'package:flutter/material.dart';
 import '../../ui/theme/colors.dart';
 import '../../ui/theme/text_styles.dart';
@@ -14,7 +13,7 @@ class TaskDetailPage extends StatelessWidget {
     final email = taskData['email'] ?? 'N/A';
     final description = taskData['description'] ?? 'No Description';
     final dueDate = taskData['dueDate'] ?? 'N/A';
-    final attachmentUrl = taskData['attachment']; // can be null
+    final attachmentUrl = taskData['attachment']; 
 
     return Scaffold(
       appBar: AppBar(
@@ -33,10 +32,9 @@ class TaskDetailPage extends StatelessWidget {
                 Icon(Icons.email),
                 SizedBox(width: 8),
                 Expanded(
-                  // 👈 Wrap the Text with Expanded or Flexible
                   child: Text(
                     taskData['email'],
-                    overflow: TextOverflow.ellipsis, // Optional: adds "..."
+                    overflow: TextOverflow.ellipsis, 
                     maxLines: 1,
                     style: TextStyle(fontSize: 16),
                   ),
@@ -65,7 +63,6 @@ class TaskDetailPage extends StatelessWidget {
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
                     onPressed: () {
-                      // You can add code to download or preview
                     },
                     icon: const Icon(Icons.attach_file),
                     label: const Text("Download"),

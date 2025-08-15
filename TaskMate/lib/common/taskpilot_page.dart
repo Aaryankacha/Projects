@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
   final String text;
   final bool isUser;
   final DateTime timestamp;
-
   Message({required this.text, required this.isUser, required this.timestamp});
 }
 
 class TaskPilotPage extends StatefulWidget {
   const TaskPilotPage({super.key});
-
   @override
   State<TaskPilotPage> createState() => _TaskPilotPageState();
 }
@@ -22,8 +21,7 @@ class _TaskPilotPageState extends State<TaskPilotPage> {
   final List<Message> _messages = [];
   bool _loading = false;
 
-  // 🧠 Replace this with your working ngrok link
-  final String apiUrl = 'https://taskmate-backend-hzak.onrender.com/ask';
+  final String apiUrl = 'your-URL';
 
   Future<void> askTaskPilot(String prompt) async {
     setState(() {
@@ -33,45 +31,73 @@ class _TaskPilotPageState extends State<TaskPilotPage> {
       );
     });
 
-    // Check for manual commands (case-insensitive)
     final cmd = prompt.toLowerCase();
 
-    if (cmd == "show tasks") {
-      await _addBotReply(
-        "📝 Your current tasks:\n1. Redesign dashboard\n2. Connect Firebase\n3. Test TaskPilot bot",
-      );
-    } else if (cmd == "pending tasks") {
-      await _addBotReply(
-        "⌛ Pending tasks:\n1. Complete profile UI\n2. Add attachments to tasks",
-      );
-    } else if (cmd == "completed") {
-      await _addBotReply("✅ You've completed 4 tasks so far. Great job!");
-    } else if (cmd == "hello" || cmd == "hi") {
-      await _addBotReply(
-        "👋 Hello! I’m TaskPilot — your assistant for managing tasks.",
-      );
-    } else {
-      // 🔄 Otherwise, call Gemini API
-      try {
+    try {
+      if (cmd == "show tasks") {
+        final snapshot = await FirebaseFirestore.instance
+            .collection('tasks')
+            .get();
+
+        if (snapshot.docs.isEmpty) {
+          await _addBotReply("📝 No tasks found.");
+        } else {
+          String reply = "📝 Your current tasks:\n";
+          for (int i = 0; i < snapshot.docs.length; i++) {
+            final data = snapshot.docs[i].data();
+            final title = data['title'] ?? "No Title";
+            final status = data['status'] ?? "N/A";
+            reply += "${i + 1}. $title (Status: $status)\n";
+          }
+          await _addBotReply(reply);
+        }
+      } else if (cmd == "pending tasks") {
+        final snapshot = await FirebaseFirestore.instance
+            .collection('tasks')
+            .where('status', isEqualTo: 'pending')
+            .get();
+
+        if (snapshot.docs.isEmpty) {
+          await _addBotReply("⌛ No pending tasks!");
+        } else {
+          String reply = "⌛ Pending tasks:\n";
+          for (int i = 0; i < snapshot.docs.length; i++) {
+            final data = snapshot.docs[i].data();
+            final title = data['title'] ?? "No Title";
+            reply += "${i + 1}. $title\n";
+          }
+          await _addBotReply(reply);
+        }
+      } else if (cmd == "completed") {
+        final snapshot = await FirebaseFirestore.instance
+            .collection('tasks')
+            .where('status', isEqualTo: 'completed')
+            .get();
+
+        await _addBotReply(
+          "✅ You've completed ${snapshot.docs.length} task(s) so far.",
+        );
+      } else if (cmd == "hello" || cmd == "hi") {
+        await _addBotReply(
+          "👋 Hello! I’m TaskPilot — your assistant for managing tasks and answering daily questions.",
+        );
+      } else {
         final res = await http.post(
           Uri.parse(apiUrl),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'prompt': prompt}),
         );
-
         final data = jsonDecode(res.body);
         final reply = data['response'] ?? data['error'] ?? 'No reply';
-
         await _addBotReply(reply);
-      } catch (e) {
-        await _addBotReply("Something went wrong 😢");
       }
+    } catch (e) {
+      await _addBotReply("Something went wrong 😢\nError: $e");
     }
 
     setState(() => _loading = false);
   }
 
-  // 💬 Helper to add bot reply
   Future<void> _addBotReply(String text) async {
     setState(() {
       _messages.add(
@@ -87,30 +113,17 @@ class _TaskPilotPageState extends State<TaskPilotPage> {
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: msg.isUser ? Colors.blue : Colors.grey.shade300,
-          borderRadius: BorderRadius.circular(12),
+          color: msg.isUser
+              ? const Color.fromARGB(255, 9, 118, 201)
+              : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: Column(
-          crossAxisAlignment: msg.isUser
-              ? CrossAxisAlignment.end
-              : CrossAxisAlignment.start,
-          children: [
-            Text(
-              msg.text,
-              style: TextStyle(
-                color: msg.isUser ? Colors.white : Colors.black87,
-                fontSize: 15,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _formatTime(msg.timestamp),
-              style: TextStyle(
-                fontSize: 10,
-                color: msg.isUser ? Colors.white70 : Colors.black54,
-              ),
-            ),
-          ],
+        child: Text(
+          msg.text,
+          style: TextStyle(
+            color: msg.isUser ? Colors.white : Colors.black87,
+            fontSize: 15,
+          ),
         ),
       ),
     );
@@ -123,12 +136,37 @@ class _TaskPilotPageState extends State<TaskPilotPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        title: const Text("🤖 TaskPilot Chat"),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: const Color.fromARGB(255, 88, 163, 244),
+        elevation: 0,
+        leading: BackButton(color: Colors.white), // <-- Back button
+        title: const Text("TaskPilot", style: TextStyle(color: Colors.white)),
+        centerTitle: true,
       ),
       body: Column(
         children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            color: const Color.fromARGB(255, 88, 163, 244),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 35,
+                  backgroundImage: AssetImage(
+                    "assets/images/taskpilot-avatar.png",
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Your friendly assistant, ready to help you conquer tasks and answer anything you throw my way.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 14, color: Colors.white70),
+                ),
+              ],
+            ),
+          ),
+
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -136,11 +174,13 @@ class _TaskPilotPageState extends State<TaskPilotPage> {
               itemBuilder: (context, index) => buildMessage(_messages[index]),
             ),
           ),
+
           if (_loading)
             const Padding(
               padding: EdgeInsets.only(bottom: 10),
               child: CircularProgressIndicator(),
             ),
+
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             color: Colors.white,
@@ -157,6 +197,11 @@ class _TaskPilotPageState extends State<TaskPilotPage> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 0, 123, 155),
+                    shape: const CircleBorder(),
+                    padding: const EdgeInsets.all(12),
+                  ),
                   onPressed: _loading
                       ? null
                       : () {
@@ -166,7 +211,7 @@ class _TaskPilotPageState extends State<TaskPilotPage> {
                             askTaskPilot(prompt);
                           }
                         },
-                  child: const Icon(Icons.send),
+                  child: const Icon(Icons.send, color: Colors.white),
                 ),
               ],
             ),

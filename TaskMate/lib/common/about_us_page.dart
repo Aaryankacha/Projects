@@ -1,4 +1,3 @@
-// lib/pages/about_us_page.dart
 
 import 'package:flutter/material.dart';
 
@@ -32,7 +31,7 @@ class AboutUsPage extends StatelessWidget {
               icon: Icons.person,
               title: "👨‍💻 Developer Info",
               content:
-                  "Hi, I'm Dev 👋\n\nThis app was built as a part of my learning and personal project journey using Flutter and Firebase.\n\nI wanted to build something practical where an Admin can manage employees and assign them tasks, while Employees can track their own tasks — all inside one smooth mobile/web experience.",
+                  "Hi, I'm Aryan 👋\n\nThis app was built as a part of my learning and personal project journey using Flutter and Firebase.\n\nI wanted to build something practical where an Admin can manage employees and assign them tasks, while Employees can track their own tasks — all inside one smooth mobile/web experience.",
             ),
             const SizedBox(height: 16),
 

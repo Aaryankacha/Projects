@@ -1,4 +1,3 @@
-// admin_dashboard_page.dart
 
 import 'package:flutter/material.dart';
 import '../../ui/theme/colors.dart';
@@ -9,7 +8,7 @@ import '../admin/assign_task_page.dart';
 import '../admin/view_all_tasks_page.dart';
 import '../common/profile_page.dart';
 import '../messenger/user_list_page.dart';
-import '../common/taskpilot_page.dart'; // ✅ Import your TaskPilot Page
+import '../common/taskpilot_page.dart'; 
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
@@ -57,7 +56,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           backgroundColor: AppColors.background,
           body: _pages[_selectedIndex],
           floatingActionButton: FloatingActionButton(
-            heroTag: 'adminFAB', // 🛠️ Add this line!
+            heroTag: 'adminFAB', 
             onPressed: _onAddPressed,
             backgroundColor: AppColors.primaryBlue,
             child: const Icon(Icons.add, size: 32, color: Colors.white),
@@ -104,7 +103,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           ),
         ),
 
-        // ✅ Floating TaskPilot Icon
         Positioned(
           right: 20,
           bottom: 90,
@@ -118,13 +116,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             child: Container(
               padding: const EdgeInsets.all(
                 4,
-              ), // Slight padding to make it compact
+              ), 
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black26, // subtle shadow for depth
+                    color: Colors.black26, 
                     blurRadius: 6,
                     offset: Offset(2, 2),
                   ),
@@ -135,7 +133,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   'assets/images/taskpilot_icon.png',
                   width: 60,
                   height: 60,
-                  fit: BoxFit.cover, // prevents overflow/sharp edges
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
@@ -146,7 +144,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 }
 
-// 👇 Home dashboard layout
 class _HomeDashboardView extends StatelessWidget {
   const _HomeDashboardView();
 

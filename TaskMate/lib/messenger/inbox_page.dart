@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/chat_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'chat_page.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // ✅ Needed for Timestamp
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class InboxPage extends StatefulWidget {
   const InboxPage({super.key});
@@ -40,7 +40,6 @@ class _InboxPageState extends State<InboxPage> {
             itemBuilder: (context, index) {
               final chat = chats[index];
 
-              // Get the other user’s info
               final otherUserId = (chat['participants'] as List).firstWhere(
                 (id) => id != currentUser!.uid,
               );
@@ -50,7 +49,7 @@ class _InboxPageState extends State<InboxPage> {
 
               return ListTile(
                 leading: const CircleAvatar(child: Icon(Icons.person)),
-                title: Text(otherUserId), // Replace with real name if needed
+                title: Text(otherUserId), 
                 subtitle: Text(lastMessage, maxLines: 1),
                 trailing: timestamp != null
                     ? Text(
@@ -59,14 +58,13 @@ class _InboxPageState extends State<InboxPage> {
                       )
                     : null,
                 onTap: () {
-                  // 👉 Navigate to ChatPage
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => ChatPage(
                         receiverId: otherUserId,
                         receiverName:
-                            otherUserId, // Replace with actual name if available
+                            otherUserId, 
                       ),
                     ),
                   );
@@ -80,7 +78,7 @@ class _InboxPageState extends State<InboxPage> {
         backgroundColor: Colors.blue.shade700,
         child: const Icon(Icons.chat),
         onPressed: () {
-          Navigator.pushNamed(context, '/userList'); // 👈 We’ll map this route
+          Navigator.pushNamed(context, '/userList'); 
         },
       ),
     );

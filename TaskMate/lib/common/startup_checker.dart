@@ -8,27 +8,38 @@ class StartupChecker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<QuerySnapshot>(
-      future: FirebaseFirestore.instance
-          .collection('users')
-          .where('role', isEqualTo: 'admin')
-          .limit(1)
-          .get(),
+    return FutureBuilder(
+      future: _checkAdmin(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState != ConnectionState.done) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        final hasAdmin = snapshot.data!.docs.isNotEmpty;
-
-        if (hasAdmin) {
-          return const LoginPage();
-        } else {
-          return const AdminRegistrationPage();
+        if (snapshot.hasError) {
+          return const Scaffold(body: Center(child: Text('Error loading app')));
         }
+
+        final hasAdmin = snapshot.data ?? false;
+
+        return hasAdmin ? const LoginPage() : const AdminRegistrationPage();
       },
     );
+  }
+
+  Future<bool> _checkAdmin() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('role', isEqualTo: 'admin')
+          .limit(1)
+          .get();
+
+      return snapshot.docs.isNotEmpty;
+    } catch (e) {
+      print('Startup check error: $e');
+      return false; // default if error
+    }
   }
 }

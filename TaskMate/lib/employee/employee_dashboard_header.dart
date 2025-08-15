@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../ui/theme/colors.dart';
 import '../../ui/theme/text_styles.dart';
+import '../common/about_us_page.dart';
 
 class EmployeeGreetingHeader extends StatelessWidget {
   const EmployeeGreetingHeader({super.key});
@@ -67,43 +68,16 @@ class EmployeeGreetingHeader extends StatelessWidget {
                           FirebaseAuth.instance.signOut();
                           Navigator.pushReplacementNamed(context, '/login');
                         } else if (value == 'about') {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: const Text("About App"),
-                              content: const SingleChildScrollView(
-                                child: Text(
-                                  "Employee Task Manager v1.0.0\nMade by Your Dev Team ❤️",
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text("OK"),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else if (value == 'me') {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: const Text("About Me"),
-                              content: SingleChildScrollView(
-                                child: Text("Name: $name\nRole: Employee"),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text("OK"),
-                                ),
-                              ],
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  AboutUsPage(), // This is your about_us.dart widget
                             ),
                           );
                         }
                       },
                       itemBuilder: (context) => const [
-                        PopupMenuItem(value: 'me', child: Text('About Me')),
                         PopupMenuItem(value: 'about', child: Text('About App')),
                         PopupMenuItem(value: 'logout', child: Text('Logout')),
                       ],

@@ -16,6 +16,8 @@ class AdminMiddleCards extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
           child: Container(
+            height: 250, // size of the box
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(20),
@@ -27,29 +29,26 @@ class AdminMiddleCards extends StatelessWidget {
                 ),
               ],
             ),
-            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Pending Tasks", style: AppTextStyles.heading2),
-                SizedBox(
-                  height: 120,
+                const SizedBox(height: 12),
+                Expanded(
+                  // This makes the list fill the remaining space in the box
                   child: StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('tasks')
                         .where('status', isEqualTo: 'pending')
                         .orderBy('timestamp', descending: true)
-                        .limit(2)
                         .snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       }
                       if (snapshot.hasError) {
-                        print('Firestore error: ${snapshot.error}');
                         return const Center(child: Text("Error loading tasks"));
                       }
-
                       if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                         return Text(
                           "All tasks completed!",
@@ -59,16 +58,18 @@ class AdminMiddleCards extends StatelessWidget {
 
                       final tasks = snapshot.data!.docs;
 
-                      return SingleChildScrollView(
-                        child: Column(
-                          children: tasks.map((task) {
-                            final data = task.data() as Map<String, dynamic>;
-
+                      return Scrollbar(
+                        // Add scrollbar for better UX
+                        child: ListView.separated(
+                          itemCount: tasks.length,
+                          separatorBuilder: (_, __) => const Divider(height: 8),
+                          itemBuilder: (context, index) {
+                            final data =
+                                tasks[index].data()! as Map<String, dynamic>;
                             final title = data['title'] ?? "No Title";
                             final email = data['email'] ?? "N/A";
 
                             return ListTile(
-                              contentPadding: EdgeInsets.zero,
                               title: Text(title),
                               subtitle: Text(
                                 "Assigned to: $email",
@@ -97,7 +98,7 @@ class AdminMiddleCards extends StatelessWidget {
                                 ),
                               ),
                             );
-                          }).toList(),
+                          },
                         ),
                       );
                     },

@@ -28,7 +28,7 @@ class _UploadPageState extends State<UploadPage> {
       });
 
       final uri = Uri.parse(
-        'https://taskmate-backend-hzak.onrender.com/upload',
+        'your-URL',
       );
       var request = http.MultipartRequest('POST', uri);
       request.files.add(await http.MultipartFile.fromPath('file', file.path));

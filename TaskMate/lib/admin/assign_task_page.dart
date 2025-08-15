@@ -36,7 +36,6 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
         final userDoc = querySnapshot.docs.first;
         final uid = userDoc.id;
 
-        // 1. Create global task and get its ID
         final globalTask = await FirebaseFirestore.instance
             .collection('tasks')
             .add({
@@ -51,29 +50,26 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
 
         final globalTaskId = globalTask.id;
         if (pickedFile != null) {
-          // only run if the user attached a file
           try {
             final dio =
-                Dio(); // Dio = HTTP client that supports multipart uploads
+                Dio(); 
             late FormData
-            formData; // we'll create FormData below (late means "I'll assign it later")
+            formData; 
 
             if (pickedFile!.bytes != null) {
-              // WEB: file data is in memory as bytes
-              // Web (uses bytes)
+      
               formData = FormData.fromMap({
                 'file': MultipartFile.fromBytes(
-                  pickedFile!.bytes!, // raw bytes of the file
-                  filename: // give file a unique name with timestamp + original name
+                  pickedFile!.bytes!,
+                  filename:
                       "${DateTime.now().millisecondsSinceEpoch}_${pickedFile!.name}",
                 ),
               });
             } else if (pickedFile!.path != null) {
-              // MOBILE/DESKTOP: file stored on disk, use path
-              // Mobile/Desktop (uses path)
+ 
               formData = FormData.fromMap({
                 'file': await MultipartFile.fromFile(
-                  pickedFile!.path!, // reads file from path (async)
+                  pickedFile!.path!,
                   filename:
                       "${DateTime.now().millisecondsSinceEpoch}_${pickedFile!.name}",
                 ),
@@ -81,22 +77,19 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
             } else {
               throw Exception(
                 "❌ No valid file data to upload.",
-              ); // safety: neither bytes nor path available
+              ); 
             }
-            // send request to your upload endpoint (backend should accept multipart/form-data with field 'file')
             final response = await dio.post(
-              'https://taskmate-backend-hzak.onrender.com/upload',
+              'your-URL',
               data: formData,
             );
-            // expecting backend to return JSON with a 'url' field (path to uploaded file)
             if (response.statusCode == 200 && response.data['url'] != null) {
-              // build a full public URL from returned path
               uploadedFileUrl =
-                  "https://taskmate-backend-hzak.onrender.com${response.data['url']}";
+                  "your-URL";
             } else {
               throw Exception(
                 "File upload failed",
-              ); // backend didn't return expected success info
+              );
             }
           } catch (e) {
             print("Upload error: $e");
@@ -108,7 +101,6 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
           }
         }
 
-        // 2. Add the task under user's task collection WITH the globalTaskId
         await FirebaseFirestore.instance
             .collection('users')
             .doc(uid)
@@ -119,7 +111,7 @@ class _AssignTaskPageState extends State<AssignTaskPage> {
               'timestamp': Timestamp.now(),
               'dueDate': dueDate != null ? Timestamp.fromDate(dueDate!) : null,
               'status': 'pending',
-              'globalTaskId': globalTaskId, // link to global task
+              'globalTaskId': globalTaskId, 
               'attachmentUrl': uploadedFileUrl,
             });
 

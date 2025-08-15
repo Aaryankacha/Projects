@@ -75,11 +75,9 @@ class EmployeeTaskPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Task title
                     Text(title, style: AppTextStyles.heading2),
 
                     const SizedBox(height: 8),
-                    // Task description
                     Text(
                       description,
                       style: AppTextStyles.bodyText.copyWith(
@@ -88,7 +86,6 @@ class EmployeeTaskPage extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 12),
-                    // Task status chip
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,

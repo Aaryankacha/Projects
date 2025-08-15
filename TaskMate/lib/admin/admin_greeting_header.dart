@@ -1,4 +1,3 @@
-// admin_greeting_header.dart
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -69,19 +68,13 @@ class AdminGreetingHeader extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                AboutUsPage(), // This is your about_us.dart widget
+                                AboutUsPage(), 
                           ),
                         );
-                      } else if (value == 'feedback') {
-                        // Future: Feedback page
-                      } else if (value == 'settings') {
-                        // Future: Settings page
                       }
                     },
                     itemBuilder: (context) => const [
                       PopupMenuItem(value: 'about', child: Text('About App')),
-                      PopupMenuItem(value: 'feedback', child: Text('Feedback')),
-                      PopupMenuItem(value: 'settings', child: Text('Settings')),
                       PopupMenuItem(value: 'logout', child: Text('Logout')),
                     ],
                   ),
@@ -91,7 +84,6 @@ class AdminGreetingHeader extends StatelessWidget {
 
               const SizedBox(height: 25),
 
-              // Greeting text
               Text(
                 "Hello, $name!",
                 style: AppTextStyles.heading1.copyWith(color: Colors.white),

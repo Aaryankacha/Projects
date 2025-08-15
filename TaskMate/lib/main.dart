@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -9,13 +11,14 @@ import 'messenger/user_list_page.dart';
 import 'employee/employee_dashboard_page.dart';
 import 'admin/admin_dashboard_page.dart';
 
-// Global network checker
-import 'common/network_listner.dart'; // Make sure this import is correct
+Future<void> main() async {
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   runApp(const MyApp());
 }
 
@@ -24,24 +27,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NetworkListener(
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Employee Task Manager',
-        theme: ThemeData(
-          primarySwatch: Colors.orange,
-          scaffoldBackgroundColor: Colors.orange.shade50,
-        ),
-        home: const StartupChecker(),
-        routes: {
-          '/login': (context) => const LoginPage(),
-          '/about': (context) => const AboutUsPage(),
-          '/userList': (context) => const UserListPage(),
-          '/taskpilot': (context) => const TaskPilotPage(),
-          '/dashboard': (context) => const EmployeeDashboardPage(),
-          '/adminDashboard': (context) => const AdminDashboardPage(),
-        },
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Employee Task Manager',
+      theme: ThemeData(
+        primarySwatch: Colors.orange,
+        scaffoldBackgroundColor: Colors.orange.shade50,
       ),
+      home: const StartupChecker(),
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/about': (context) => const AboutUsPage(),
+        '/userList': (context) => const UserListPage(),
+        '/taskpilot': (context) => const TaskPilotPage(),
+        '/dashboard': (context) => const EmployeeDashboardPage(),
+        '/adminDashboard': (context) => const AdminDashboardPage(),
+      },
     );
   }
 }

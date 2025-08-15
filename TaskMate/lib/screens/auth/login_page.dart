@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../employee/employee_dashboard_page.dart';
 import '../../admin/admin_dashboard_page.dart';
 import 'signup_page.dart';
@@ -23,9 +24,8 @@ class _LoginPageState extends State<LoginPage>
   late Animation<double> _fadeAnimation;
   bool isLoading = false;
 
-  void loginUser() async {
-    setState(() => isLoading = true); // Start loading
-
+  Future<void> loginUser() async {
+    setState(() => isLoading = true);
     try {
       final email = emailController.text.trim();
       final password = passwordController.text.trim();
@@ -34,14 +34,12 @@ class _LoginPageState extends State<LoginPage>
           .signInWithEmailAndPassword(email: email, password: password);
 
       final uid = userCredential.user?.uid;
-
       final doc = await FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
           .get();
       final role = doc['role'];
 
-      // 🎉 Show Success Toast
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('✅ Successfully logged in'),
@@ -51,27 +49,25 @@ class _LoginPageState extends State<LoginPage>
             borderRadius: BorderRadius.circular(12),
           ),
           backgroundColor: Colors.green.shade600,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
 
-      // Navigate
       if (role == 'admin') {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => AdminDashboardPage()),
+          MaterialPageRoute(builder: (_) => const AdminDashboardPage()),
         );
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => EmployeeDashboardPage()),
+          MaterialPageRoute(builder: (_) => const EmployeeDashboardPage()),
         );
       }
     } catch (e) {
-      print('Login failed: $e');
       setState(() => errorMessage = 'Login failed');
     } finally {
-      setState(() => isLoading = false); // Stop loading
+      setState(() => isLoading = false);
     }
   }
 
@@ -80,7 +76,7 @@ class _LoginPageState extends State<LoginPage>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(seconds: 1),
     );
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
@@ -89,6 +85,8 @@ class _LoginPageState extends State<LoginPage>
   @override
   void dispose() {
     _controller.dispose();
+    emailController.dispose();
+    passwordController.dispose();
     super.dispose();
   }
 
@@ -96,170 +94,179 @@ class _LoginPageState extends State<LoginPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
-        children: [
-          // 🟦 Top blue curved header
-          Container(
-            height: 260,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: AppColors.primaryBlue,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(130),
-                bottomRight: Radius.circular(130),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              flex: 4,
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: AppColors.primaryBlue,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(130),
+                    bottomRight: Radius.circular(130),
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircleAvatar(
+                      radius: 60,
+                      backgroundImage: AssetImage('assets/images/logo-bg.png'),
+                      backgroundColor: Colors.transparent,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      "TaskMate",
+                      style: AppTextStyles.heading1.copyWith(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 60,
-                  backgroundColor: AppColors.primaryBlue,
-                  backgroundImage: AssetImage('assets/images/logo-bg.png'),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  "TaskMate",
-                  style: AppTextStyles.heading1.copyWith(color: Colors.white),
-                ),
-              ],
-            ),
-          ),
 
-          // 🔽 Form section
-          Expanded(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
+            Expanded(
+              flex: 6, 
+              child: FadeTransition(
+                opacity: _fadeAnimation,
                 child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 20,
+                  ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const SizedBox(height: 8),
                       Text(
                         "Welcome",
+                        textAlign: TextAlign.center,
                         style: AppTextStyles.imptxt.copyWith(
-                          color: const Color.fromARGB(255, 0, 123, 255),
+                          color: const Color(0xFF007BFF),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       Text(
                         "to TaskMate",
+                        textAlign: TextAlign.center,
                         style: AppTextStyles.smallText.copyWith(
                           color: const Color.fromARGB(179, 3, 18, 119),
                         ),
                       ),
-                      const SizedBox(height: 12),
-
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: TextField(
-                          controller: emailController,
-                          decoration: InputDecoration(
-                            hintText: 'Email Address',
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: TextField(
-                          controller: passwordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            hintText: 'Password',
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-
                       const SizedBox(height: 24),
+
+                      /* -- EMAIL -- */
+                      _InputBox(
+                        controller: emailController,
+                        hint: 'Email Address',
+                        obscure: false,
+                      ),
+                      const SizedBox(height: 16),
+
+                      /* -- PASSWORD -- */
+                      _InputBox(
+                        controller: passwordController,
+                        hint: 'Password',
+                        obscure: true,
+                      ),
+                      const SizedBox(height: 32),
+
                       SizedBox(
-                        width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: loginUser,
+                          onPressed: isLoading ? null : loginUser,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryBlue,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            "Login",
-                            style: AppTextStyles.buttonText,
-                          ),
+                          child: isLoading
+                              ? const CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation(
+                                    Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  "Login",
+                                  style: AppTextStyles.buttonText,
+                                ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      if (errorMessage.isNotEmpty)
+                      if (errorMessage.isNotEmpty) ...[
+                        const SizedBox(height: 16),
                         Row(
                           children: [
-                            Icon(Icons.error_outline, color: Colors.red),
-                            SizedBox(width: 8),
+                            const Icon(Icons.error_outline, color: Colors.red),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 errorMessage,
-                                style: TextStyle(color: Colors.red),
+                                style: const TextStyle(color: Colors.red),
                               ),
                             ),
                           ],
                         ),
-                      const SizedBox(height: 16),
+                      ],
+                      const SizedBox(height: 24),
+
                       TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => SignupPage()),
-                          );
-                        },
-                        child: const Text("Don't have an account? Sign Up"),
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SignupPage()),
+                        ),
+                        child: const Text("Sign in to continue."),
                       ),
                     ],
                   ),
                 ),
               ),
             ),
-          ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InputBox extends StatelessWidget {
+  final TextEditingController controller;
+  final String hint;
+  final bool obscure;
+
+  const _InputBox({
+    required this.controller,
+    required this.hint,
+    required this.obscure,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
         ],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: obscure,
+        decoration: InputDecoration(
+          hintText: hint,
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
+        ),
       ),
     );
   }

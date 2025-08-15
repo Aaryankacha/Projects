@@ -17,7 +17,7 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
   final countryController = TextEditingController();
   final ageController = TextEditingController();
 
-  String selectedRole = 'Developer'; // default value
+  String selectedRole = 'Developer'; 
   bool isLoading = false;
   String selectedAvatarPath = 'assets/avatars/avatar_1.png';
   final List<String> avatarPaths = [
@@ -43,14 +43,12 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
   void addEmployee() async {
     setState(() => isLoading = true);
     try {
-      // Firebase Auth
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
           );
 
-      // Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userCredential.user!.uid)
@@ -63,14 +61,13 @@ class _AddEmployeePageState extends State<AddEmployeePage> {
             'country': countryController.text.trim(),
             'age': ageController.text.trim(),
             'avatar': selectedAvatarPath,
-            'type': 'employee', // 🟦 used for login redirection
+            'type': 'employee',
           });
 
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("✅ Employee added successfully!")));
 
-      // Clear fields
       nameController.clear();
       emailController.clear();
       phoneController.clear();
